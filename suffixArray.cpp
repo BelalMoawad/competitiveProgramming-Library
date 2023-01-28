@@ -17,10 +17,10 @@ typedef pair<int, int> pii;
 typedef bitset<5> MASK;
 const int N = 3e5 + 9, MOD = 1e9 + 7, OO = 0x3f3f3f3f/*3f3f3f3f*/;
 //\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//\\//|
- 
+
 class suffixArray {
     int n;
-    vi p, c;
+    vi p, c, lcp;
     string str;
     void radixSort(vector<pair<pii, int> > &a) {
         { // sort based on second
@@ -58,6 +58,25 @@ class suffixArray {
         for (int i = 0; i < n; ++i) a[i] = {{c[i], c[(i + (1 << k)) % n]}, i};
         radixSort(a);
         complete(a);
+    }
+    void calcSuffixArray() {
+        init();
+        int k = 0;
+        while ((1 << k) < n) {
+            process(k);
+            k++;
+        }
+    }
+    void calcLCP() {
+        int k = 0;
+        for (int i = 0; i < n - 1; ++i) {
+            int pi = c[i];
+            int j = p[pi - 1];
+            // lcp[i] = lcp(str[i...], str[j...])
+            while (str[i + k] == str[j + k]) k++;
+            lcp[pi] = k;
+            k = max(k - 1, 0);
+        }
     }
     int can(int idx, string &pattern){
         int cur = p[idx], len = (int) pattern.size();
@@ -97,16 +116,15 @@ public:
         str = s;
         str += '$';
         n = (int) str.size();
-        p = c = vi(n);
-        init();
-        int k = 0;
-        while ((1 << k) < n) {
-            process(k);
-            k++;
-        }
+        p = c = lcp = vi(n);
+        calcSuffixArray();
+        calcLCP();
     }
     vi getSuffixArray() {
         return p;
+    }
+    vi getLCP() {
+        return vi(lcp.begin() + 1, lcp.end());
     }
     bool patternIsExist(string &pattern) {
         return lower_bound(pattern) != -1;
@@ -117,21 +135,3 @@ public:
         return upper_bound(pattern) - lower + 1;
     }
 };
- 
-void doWork() {
-    string str, pattern;
-    cin >> str;
-    suffixArray Suf(str);
-    int q; cin >> q;
-    while (q--) {
-        cin >> pattern;
-        cout << Suf.countPattern(pattern) << '\n';
-    }
-}
- 
-int32_t main() {
-    FAST
-    int tc = 1;
-//    cin >> tc;
-    while (tc--) doWork();
-}
