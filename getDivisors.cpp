@@ -11,6 +11,7 @@ using namespace __gnu_cxx;
 #define Sz(x) ((int)x.size())
 #define F first
 #define S second
+typedef long long ll;
 typedef vector<int> vi;
 typedef vector<vi> vvi;
 typedef pair<int, int> pii;
@@ -27,7 +28,7 @@ void seive() {
     for (int i = 2; i <= MX; ++i) {
         if(!isPrime[i]) continue;
         primes.emplace_back(i);
-        for (int j = i + i; j <= MX; j += i) isPrime[j] = false;
+        for (ll j = 1ll * i * i; j <= MX; j += i) isPrime[j] = false;
     }
 }
 
